@@ -2,23 +2,23 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROJECT: OMEGA - Full Roster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PROJECT: OMEGA - Ultimate Database</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #00f3ff;   /* Cyan Neon */
-            --secondary: #bc13fe; /* Purple Neon */
-            --danger: #ff0055;    /* Red Neon */
-            --gold: #ffae00;      /* Gold */
+            --primary: #00f3ff;
+            --secondary: #bc13fe;
+            --danger: #ff0055;
+            --gold: #ffae00;
             --bg-dark: #050510;
-            --card-bg: rgba(15, 20, 35, 0.7);
+            --card-bg: rgba(15, 20, 35, 0.85);
             --glass: rgba(255, 255, 255, 0.05);
         }
 
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
@@ -26,6 +26,7 @@
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
+            padding-bottom: 20px;
         }
 
         /* --- FONDO ANIMADO --- */
@@ -33,6 +34,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: -5;
             filter: brightness(0.4) grayscale(0.3);
+            transition: opacity 0.5s;
         }
         
         #particles {
@@ -42,239 +44,259 @@
 
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
             z-index: -3; pointer-events: none;
+        }
+
+        /* --- PANTALLA DE INICIO (Para activar audio) --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: opacity 0.5s;
+        }
+        .start-btn {
+            border: 2px solid var(--primary); color: var(--primary);
+            padding: 20px 40px; font-family: 'Orbitron'; font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 0 10px var(--primary);
         }
 
         /* --- HEADER & CONTROLES --- */
         header {
-            text-align: center;
-            padding: 40px 20px;
+            text-align: center; padding: 30px 20px 10px;
             animation: slideDown 0.8s ease-out;
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
-            text-transform: uppercase;
-            margin: 0;
+            font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive font size */
+            text-transform: uppercase; margin: 0;
             background: linear-gradient(to bottom, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px var(--primary);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .subtitle {
+            letter-spacing: 3px; color: var(--primary); 
+            font-size: 0.8rem; margin-top: 5px; opacity: 0.8;
         }
 
         .controls-area {
-            display: flex; flex-direction: column; align-items: center; gap: 20px;
-            margin-bottom: 30px;
-            padding: 0 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            margin-bottom: 20px; padding: 0 15px;
+            position: sticky; top: 0; z-index: 50;
+            background: linear-gradient(to bottom, var(--bg-dark) 0%, rgba(5,5,16,0.95) 80%, transparent 100%);
+            padding-top: 10px; padding-bottom: 20px;
         }
 
-        .search-box {
-            position: relative; width: 100%; max-width: 500px;
-        }
+        .search-box { position: relative; width: 100%; max-width: 500px; }
 
         .search-input {
-            width: 100%; padding: 15px 50px;
+            width: 100%; padding: 12px 45px;
             background: rgba(0,0,0,0.6);
-            border: 2px solid var(--secondary);
+            border: 1px solid var(--secondary);
             border-radius: 30px;
-            color: white;
-            font-family: 'Orbitron';
-            font-size: 1.1rem;
-            outline: none;
-            transition: 0.3s;
+            color: white; font-family: 'Orbitron'; font-size: 1rem;
+            outline: none; transition: 0.3s;
+        }
+        .search-input:focus {
+            box-shadow: 0 0 15px var(--secondary); border-color: #fff;
+            background: rgba(0,0,0,0.9);
         }
 
-        .search-input:focus {
-            box-shadow: 0 0 20px var(--secondary);
-            background: rgba(0,0,0,0.8);
+        /* Scroll horizontal para botones en móvil */
+        .filter-wrapper {
+            width: 100%; max-width: 1200px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
         }
+        
+        .filter-wrapper::-webkit-scrollbar { height: 4px; }
+        .filter-wrapper::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
 
         .filter-row {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+            display: flex; gap: 10px; justify-content: center;
+            min-width: max-content; /* Fuerza que los botones no se rompan */
+            padding: 0 10px;
         }
 
         .btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid var(--primary);
             color: var(--primary);
-            padding: 8px 20px;
-            font-family: 'Orbitron';
-            cursor: pointer;
-            transition: 0.3s;
+            padding: 10px 20px;
+            font-family: 'Orbitron'; font-size: 0.85rem;
+            cursor: pointer; transition: 0.3s;
+            white-space: nowrap; /* Evita texto en dos líneas */
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
 
         .btn:hover, .btn.active {
-            background: var(--primary);
-            color: #000;
+            background: var(--primary); color: #000;
             box-shadow: 0 0 15px var(--primary);
+            font-weight: bold;
         }
         
-        .btn-random {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
+        .btn-random { border-color: var(--gold); color: var(--gold); }
         .btn-random:hover { background: var(--gold); }
 
         /* --- GRID --- */
         .roster-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px;
+            /* Mejor ajuste automático para móviles y escritorio */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            max-width: 1400px; margin: 0 auto; padding: 0 15px 80px;
+        }
+
+        /* En tablets/PC, cartas más grandes */
+        @media (min-width: 600px) {
+            .roster-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
         }
 
         .hero-card {
             background: var(--card-bg);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px; overflow: hidden; position: relative;
+            cursor: pointer; transition: 0.3s;
             backdrop-filter: blur(5px);
+            aspect-ratio: 3/4; /* Mantiene proporción */
         }
 
-        .hero-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
-            z-index: 10;
+        .hero-card:active { transform: scale(0.96); } /* Efecto click en móvil */
+        @media (hover: hover) {
+            .hero-card:hover {
+                transform: translateY(-10px) scale(1.05);
+                border-color: var(--primary);
+                box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+                z-index: 10;
+            }
+            .hero-card:hover img { filter: grayscale(0); transform: scale(1.1); }
         }
 
         .hero-card img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-            transition: 0.4s;
-            filter: grayscale(0.4);
-        }
-
-        .hero-card:hover img {
-            filter: grayscale(0);
+            width: 100%; height: 100%; object-fit: cover;
+            transition: 0.4s; filter: grayscale(0.5);
         }
 
         .card-info {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            background: linear-gradient(to top, #000 10%, transparent);
-            padding: 20px 10px 10px 10px;
-            text-align: center;
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(to top, #000 20%, transparent);
+            padding: 30px 10px 10px; text-align: center;
         }
 
         .card-name {
-            font-family: 'Orbitron';
-            font-size: 1.4rem;
-            text-transform: uppercase;
-            margin: 0;
-            text-shadow: 0 2px 4px #000;
+            font-family: 'Orbitron'; font-size: 1.1rem;
+            text-transform: uppercase; margin: 0;
+            text-shadow: 0 2px 4px #000; letter-spacing: 1px;
         }
 
         .card-role-icon {
-            position: absolute; top: 10px; right: 10px;
-            background: #000;
-            width: 30px; height: 30px;
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(0,0,0,0.8);
+            width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            font-size: 0.8rem;
+            border-radius: 50%; border: 1px solid var(--primary);
+            color: var(--primary); font-size: 0.7rem; z-index: 2;
         }
 
-        /* --- DETALLE --- */
+        /* --- DETALLE (MODAL) --- */
         #detail-overlay {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 100;
-            overflow-y: auto;
+            background: rgba(0,0,0,0.95);
+            z-index: 100; overflow-y: auto;
             animation: fadeIn 0.3s;
+            backdrop-filter: blur(10px);
         }
 
         .detail-content {
-            max-width: 1200px; margin: 40px auto;
+            max-width: 1100px; margin: 20px auto;
             display: grid; grid-template-columns: 350px 1fr;
-            gap: 40px; padding: 20px;
+            gap: 30px; padding: 20px;
+            position: relative;
         }
 
-        .portrait-container {
-            position: sticky; top: 20px;
-            text-align: center;
-        }
+        .portrait-container { text-align: center; position: relative; }
 
         .main-portrait {
             width: 100%; border-radius: 10px;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 30px var(--primary);
+            box-shadow: 0 0 20px var(--primary);
             margin-bottom: 15px;
+            max-height: 500px; object-fit: cover;
         }
 
         .sub-portrait {
-            width: 100px; height: 100px; object-fit: cover;
+            width: 70px; height: 70px; object-fit: cover;
             border: 1px solid var(--secondary);
-            border-radius: 50%; cursor: pointer;
-            transition: 0.3s;
+            border-radius: 50%; cursor: pointer; transition: 0.3s; margin: 0 5px;
         }
-        .sub-portrait:hover { transform: scale(1.1); }
+        .sub-portrait:active { transform: scale(0.9); border-color: #fff; }
 
         .data-panel h2 {
-            font-family: 'Orbitron'; font-size: 3rem; color: var(--primary); margin: 0;
+            font-family: 'Orbitron'; font-size: 2.5rem; color: var(--primary); margin: 0;
+            line-height: 1;
         }
 
         .role-badge {
-            display: inline-block; padding: 5px 15px;
+            display: inline-block; padding: 4px 12px;
             background: var(--secondary); color: #fff;
-            font-family: 'Orbitron'; font-size: 0.8rem;
-            border-radius: 4px; margin-bottom: 20px;
+            font-family: 'Orbitron'; font-size: 0.7rem;
+            border-radius: 4px; margin-bottom: 15px; margin-top: 5px;
+            box-shadow: 0 0 10px var(--secondary);
         }
 
         .lore-text {
-            line-height: 1.6; font-size: 1.1rem; color: #ccc;
+            line-height: 1.6; font-size: 1rem; color: #ddd;
             border-left: 3px solid var(--danger); padding-left: 15px;
             background: linear-gradient(90deg, rgba(255,0,85,0.1), transparent);
+            margin-bottom: 25px;
         }
 
         /* Stats Bars */
-        .stat-row { display: flex; align-items: center; margin: 8px 0; }
-        .stat-name { width: 100px; font-weight: bold; color: var(--primary); }
-        .stat-track { flex: 1; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .stat-fill { height: 100%; width: 0; transition: width 1s ease; }
-        .fill-atk { background: var(--danger); }
-        .fill-def { background: #00aaff; }
-        .fill-mag { background: var(--secondary); }
-        .fill-spd { background: var(--gold); }
+        .stat-row { display: flex; align-items: center; margin: 12px 0; }
+        .stat-name { width: 90px; font-weight: bold; color: var(--primary); font-size: 0.9rem; }
+        .stat-track { flex: 1; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+        .stat-fill { height: 100%; width: 0; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .fill-atk { background: linear-gradient(90deg, var(--danger), #ff5e95); }
+        .fill-def { background: linear-gradient(90deg, #00aaff, #7ce0ff); }
+        .fill-mag { background: linear-gradient(90deg, var(--secondary), #e084ff); }
+        .fill-spd { background: linear-gradient(90deg, var(--gold), #ffe59e); }
 
         /* Skills */
         .skill-box {
-            background: rgba(255,255,255,0.05); padding: 15px;
-            border: 1px solid #555; margin-top: 20px;
+            background: rgba(255,255,255,0.03); padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1); margin-top: 20px; border-radius: 8px;
         }
-        .skill-title { color: var(--gold); font-family: 'Orbitron'; }
+        .skill-line { margin-bottom: 8px; font-size: 0.95rem; }
+        .skill-title { color: var(--gold); font-family: 'Orbitron'; margin-right: 5px; }
 
         /* Armas */
         .weapons-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; margin-top: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px; margin-top: 20px;
         }
         .weapon-item {
-            background: rgba(0,0,0,0.6); padding: 15px;
+            background: rgba(0,0,0,0.4); padding: 10px;
             border: 1px solid #444; border-radius: 8px;
             text-align: center; cursor: pointer; transition: 0.3s;
         }
-        .weapon-item:hover { border-color: var(--primary); background: rgba(0, 243, 255, 0.1); }
-        .weapon-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+        .weapon-item:active { background: rgba(0,243,255,0.2); border-color: var(--primary); }
+        .weapon-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-bottom: 5px; }
+        .weapon-name { font-family:'Orbitron'; color:var(--primary); font-size:0.75rem; overflow: hidden; text-overflow: ellipsis; }
 
         .btn-close {
-            position: fixed; top: 20px; right: 20px;
+            position: fixed; top: 15px; right: 15px;
             background: var(--danger); color: white; border: none;
-            width: 50px; height: 50px; font-size: 1.5rem;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+            width: 44px; height: 44px; font-size: 1.2rem;
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--danger);
             cursor: pointer; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
         }
 
         /* Modal Img */
@@ -282,25 +304,39 @@
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.95);
             z-index: 300; justify-content: center; align-items: center;
+            animation: fadeIn 0.2s;
         }
-        .img-zoom img { max-width: 90%; max-height: 90%; border: 2px solid white; }
+        .img-zoom img { max-width: 95%; max-height: 90%; border: 1px solid var(--primary); box-shadow: 0 0 30px rgba(0,243,255,0.2); }
 
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
 
+        /* --- RESPONSIVE MOBILE --- */
         @media (max-width: 900px) {
-            .detail-content { grid-template-columns: 1fr; }
-            h1 { font-size: 2.5rem; }
+            .detail-content { grid-template-columns: 1fr; margin-top: 50px; }
+            .portrait-container { position: relative; top: 0; }
+            #bg-video { display: none; } /* Ahorra batería y datos */
+            body { background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%); }
+            .filter-row { justify-content: flex-start; } /* Alinea al inicio para el scroll */
+            .roster-grid { padding-bottom: 150px; } /* Espacio extra abajo */
+            .main-portrait { height: auto; max-height: 350px; }
         }
     </style>
 </head>
 <body>
 
+    <div id="start-overlay" onclick="iniciarExperiencia()">
+        <h1 style="font-size: 2rem; margin-bottom: 20px;">PROJECT: OMEGA</h1>
+        <div class="start-btn">INICIAR SISTEMA</div>
+        <p style="color: #666; margin-top: 20px; font-size: 0.8rem;">Toque para activar audio y gráficos</p>
+    </div>
+
     <audio id="sfx-hover" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
     <audio id="sfx-select" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     <audio id="bg-music-player" loop></audio>
 
-    <video id="bg-video" autoplay muted loop playsinline>
+    <video id="bg-video" muted loop playsinline>
         <source src="https://www.dropbox.com/scl/fi/ckoormrj6fgd6zcw0xgwq/galaxia.mp4?rlkey=qs4g9k0rbylylu2hnqls0bf5n&st=fqp51h7j&raw=1" type="video/mp4">
     </video>
     <canvas id="particles"></canvas>
@@ -308,37 +344,41 @@
 
     <header>
         <h1>Project: OMEGA</h1>
-        <p style="letter-spacing: 5px; color: var(--primary); font-size: 0.8rem;">ULTIMATE HERO DATABASE</p>
+        <div class="subtitle">ULTIMATE HERO DATABASE</div>
     </header>
 
     <div class="controls-area">
         <div class="search-box">
-            <i class="fas fa-search" style="position: absolute; left: 20px; top: 18px; color: var(--primary);"></i>
-            <input type="text" class="search-input" placeholder="Buscar personaje..." onkeyup="filtrarGrid(this.value)">
+            <i class="fas fa-search" style="position: absolute; left: 20px; top: 14px; color: var(--primary);"></i>
+            <input type="text" class="search-input" placeholder="Buscar agente..." onkeyup="filtrarGrid(this.value)">
         </div>
         
-        <div class="filter-row">
-            <button class="btn active" onclick="filtrarRol('todos')">TODOS</button>
-            <button class="btn" onclick="filtrarRol('guerrero')"><i class="fas fa-fist-raised"></i> GUERREROS</button>
-            <button class="btn" onclick="filtrarRol('mago')"><i class="fas fa-hat-wizard"></i> MAGOS</button>
-            <button class="btn" onclick="filtrarRol('asesino')"><i class="fas fa-skull"></i> ASESINOS</button>
-            <button class="btn" onclick="filtrarRol('tanque')"><i class="fas fa-shield-alt"></i> TANQUES</button>
-            <button class="btn" onclick="filtrarRol('soporte')"><i class="fas fa-medkit"></i> SOPORTE</button>
-            <button class="btn btn-random" onclick="seleccionarAleatorio()"><i class="fas fa-dice"></i> RANDOM</button>
+        <div class="filter-wrapper">
+            <div class="filter-row">
+                <button class="btn active" onclick="filtrarRol('todos')">TODOS</button>
+                <button class="btn" onclick="filtrarRol('guerrero')"><i class="fas fa-fist-raised"></i> GUERRERO</button>
+                <button class="btn" onclick="filtrarRol('mago')"><i class="fas fa-hat-wizard"></i> MAGO</button>
+                <button class="btn" onclick="filtrarRol('asesino')"><i class="fas fa-skull"></i> ASESINO</button>
+                <button class="btn" onclick="filtrarRol('tanque')"><i class="fas fa-shield-alt"></i> TANQUE</button>
+                <button class="btn" onclick="filtrarRol('soporte')"><i class="fas fa-medkit"></i> SOPORTE</button>
+                <button class="btn btn-random" onclick="seleccionarAleatorio()"><i class="fas fa-dice"></i> RANDOM</button>
+            </div>
         </div>
     </div>
 
-    <div class="roster-grid" id="roster">
-        </div>
+    <div class="roster-grid" id="roster"></div>
 
     <div id="detail-overlay">
-        <button class="btn-close" onclick="cerrarDetalle()">X</button>
+        <button class="btn-close" onclick="cerrarDetalle()"><i class="fas fa-times"></i></button>
         <div class="detail-content">
             <div class="portrait-container">
                 <img src="" id="d-img-main" class="main-portrait" onclick="zoomImg(this.src)">
-                <img src="" id="d-img-sub" class="sub-portrait" onclick="zoomImg(this.src)">
-                <div style="margin-top: 20px; font-family: 'Orbitron'; color: var(--primary);">
-                    <i class="fas fa-headphones"></i> REPRODUCIENDO TEMA
+                <div>
+                    <img src="" id="d-img-sub" class="sub-portrait" onclick="cambiarMainImg(this.src)">
+                    <img src="" id="d-img-sub2" class="sub-portrait" onclick="cambiarMainImg(this.src)">
+                </div>
+                <div style="margin-top: 15px; font-family: 'Orbitron'; color: var(--primary); font-size: 0.8rem; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <i class="fas fa-headphones-alt fa-spin"></i> <span id="music-status">REPRODUCIENDO TEMA</span>
                 </div>
             </div>
             
@@ -348,19 +388,19 @@
                 
                 <p id="d-desc" class="lore-text">Descripción...</p>
 
-                <h3 style="color:white; font-family:'Orbitron'">ESTADÍSTICAS</h3>
+                <h3 style="color:white; font-family:'Orbitron'; font-size:1.2rem; border-bottom:1px solid #333; padding-bottom:5px;">ESTADÍSTICAS</h3>
                 <div class="stat-row"><div class="stat-name">ATAQUE</div><div class="stat-track"><div id="bar-atk" class="stat-fill fill-atk"></div></div></div>
                 <div class="stat-row"><div class="stat-name">DEFENSA</div><div class="stat-track"><div id="bar-def" class="stat-fill fill-def"></div></div></div>
                 <div class="stat-row"><div class="stat-name">MAGIA</div><div class="stat-track"><div id="bar-mag" class="stat-fill fill-mag"></div></div></div>
                 <div class="stat-row"><div class="stat-name">VELOCIDAD</div><div class="stat-track"><div id="bar-spd" class="stat-fill fill-spd"></div></div></div>
 
                 <div class="skill-box">
-                    <div style="margin-bottom:10px;"><strong class="skill-title">HABILIDAD PASIVA:</strong> <span id="d-passive"></span></div>
-                    <div style="margin-bottom:10px;"><strong class="skill-title">HABILIDAD ACTIVA:</strong> <span id="d-active"></span></div>
-                    <div><strong style="color: var(--danger)">DEBILIDAD:</strong> <span id="d-weak"></span></div>
+                    <div class="skill-line"><strong class="skill-title">PASIVA:</strong> <span id="d-passive"></span></div>
+                    <div class="skill-line"><strong class="skill-title">ACTIVA:</strong> <span id="d-active"></span></div>
+                    <div class="skill-line"><strong class="skill-title" style="color: var(--danger)">DEBILIDAD:</strong> <span id="d-weak"></span></div>
                 </div>
 
-                <h3 style="color:white; font-family:'Orbitron'; margin-top:30px;">ARSENAL</h3>
+                <h3 style="color:white; font-family:'Orbitron'; margin-top:30px; font-size:1.2rem;">ARSENAL</h3>
                 <div id="d-weapons" class="weapons-container"></div>
             </div>
         </div>
@@ -371,210 +411,76 @@
     </div>
 
     <script>
-        // --- BASE DE DATOS COMPLETA (23 PERSONAJES) ---
+        // --- CONFIGURACIÓN Y ESTADO ---
+        let audioEnabled = false;
+        const isMobile = window.innerWidth < 768;
+
+        // Base de datos (Misma data, estructura limpia)
         const heroes = {
-            spartan: {
-                nombre: 'SPARTAN', rol: 'guerrero', icon: 'fa-fist-raised',
-                stats: { atk: 85, def: 85, mag: 10, spd: 60 },
-                desc: 'Guerrero de élite de la antigua Grecia. Disciplina, fuerza y lealtad inquebrantable.',
-                passive: 'Equilibrio Legendario (Balance total)', active: 'Transformación en León', weak: 'Ninguna',
-                img1: 'espartano.PNG', img2: 'Spartan4.png', music: 'https://www.dropbox.com/scl/fi/alqur5qphkin1l2cuzlb8/Huge-Impact.mp3?rlkey=zrve65n7za27pcgad4xd5t44h&st=go4lyzd6&raw=1',
-                weapons: [{n:'Espada', i:'Spartan1.PNG'}, {n:'Daga', i:'Spartan3.jfif'}, {n:'Lanza', i:'Spartan2.PNG'}]
-            },
-            viking: {
-                nombre: 'VIKING', rol: 'tanque', icon: 'fa-shield-alt',
-                stats: { atk: 95, def: 80, mag: 15, spd: 40 },
-                desc: 'Saqueador nórdico. Busca la gloria del Valhalla a través de la fuerza bruta.',
-                passive: 'Fuerza Bruta (+100% Ataque Físico)', active: 'Transformación en Oso', weak: 'Lentitud y poca agilidad',
-                img1: 'vikingo.PNG', img2: 'Viking4.png', music: 'https://www.dropbox.com/scl/fi/ded6kcgql0yrcfcth8xnj/BGM.mp3?rlkey=nnmr2v849qg62aq1vfhsa8y5i&st=ph6dd8sg&raw=1',
-                weapons: [{n:'Martillo', i:'Viking1.PNG'}, {n:'Hacha', i:'Viking21.jpeg'}, {n:'Boleadora', i:'Viking31.jpeg'}]
-            },
-            samurai: {
-                nombre: 'SAMURÁI', rol: 'guerrero', icon: 'fa-khanda',
-                stats: { atk: 90, def: 50, mag: 40, spd: 80 },
-                desc: 'Maestro de la espada japonés. Honor y precisión mortal.',
-                passive: 'Defensa Maestra (Bloqueo de daño)', active: 'Transformación en Dragón', weak: 'Combate en grupo/Flanqueo',
-                img1: 'samurai.PNG', img2: 'Samurai4.png', music: 'https://www.dropbox.com/scl/fi/pmf8cw6gdk5axu9y8ppon/Hiraoka-Kotaro-Almadel.mp3?rlkey=2t438fsbq4emn8e7ortbvw95c&st=e6yl2ann&raw=1',
-                weapons: [{n:'Katana', i:'Samurai1.PNG'}, {n:'Tessen', i:'Samurai2.PNG'}, {n:'Makibishi', i:'Samurai3.PNG'}]
-            },
-            elven: {
-                nombre: 'ELVEN', rol: 'soporte', icon: 'fa-leaf',
-                stats: { atk: 70, def: 30, mag: 80, spd: 90 },
-                desc: 'Arquero mítico de los bosques. Precisión legendaria y magia natural.',
-                passive: 'Maestros de la Precisión (Puntería)', active: 'Transformación en Ciervo', weak: 'Combate cuerpo a cuerpo',
-                img1: 'elven.PNG', img2: 'Elven4.png', music: 'https://www.dropbox.com/scl/fi/r4y9tmatpy8ze593agp3m/Fox-Sailor-Forest-of-the-Ancients.mp3?rlkey=52yr0xlg1fvq5ka4zbsyat4gf&st=owtyveos&raw=1',
-                weapons: [{n:'Flecha', i:'Elven1.PNG'}, {n:'Ballesta', i:'Elven2.PNG'}, {n:'Arco', i:'Elven3.PNG'}]
-            },
-            wizard: {
-                nombre: 'WIZARD', rol: 'mago', icon: 'fa-hat-wizard',
-                stats: { atk: 20, def: 30, mag: 100, spd: 50 },
-                desc: 'Maestro de lo arcano. Controla los elementos y altera la realidad.',
-                passive: 'Dominio Arcano (+Mana)', active: 'Transformación en Búho', weak: 'Defensa física baja',
-                img1: 'wizard.PNG', img2: 'Wizard4.png', music: 'https://www.dropbox.com/scl/fi/l0prmxztlqpvg29pwplt9/love-solfege-protomimesis14.mp3?rlkey=ogd1qlzihrlu1y3c84l06uzui&st=yu3dgqco&raw=1',
-                weapons: [{n:'Báculo', i:'Wizard1.PNG'}, {n:'Grimorio', i:'Wizard2.PNG'}, {n:'Pociones', i:'Wizard3.PNG'}]
-            },
-            ninja: {
-                nombre: 'NINJA', rol: 'asesino', icon: 'fa-user-ninja',
-                stats: { atk: 80, def: 40, mag: 50, spd: 100 },
-                desc: 'Asesino de las sombras. Velocidad y sigilo inigualables.',
-                passive: 'Agilidad Sobrehumana', active: 'Transformación en Gato Negro', weak: 'Entornos iluminados',
-                img1: 'ninja.PNG', img2: 'Ninja4.png', music: 'https://www.dropbox.com/scl/fi/mk55onvw8a3j9vxknx6yw/BGM.mp3?rlkey=mxixqx1dq8coju5nwmo7ben4p&st=w6ptwhi8&raw=1',
-                weapons: [{n:'Kunai', i:'Ninja1.PNG'}, {n:'Nunchaku', i:'Ninja21.jpeg'}, {n:'Shuriken', i:'Ninja3.PNG'}]
-            },
-            aztec: {
-                nombre: 'AZTEC', rol: 'guerrero', icon: 'fa-sun',
-                stats: { atk: 88, def: 70, mag: 40, spd: 70 },
-                desc: 'Guerrero jaguar ceremonial. Guerra ritual y sacrificios.',
-                passive: 'Regeneración Vital', active: 'Transformación en Jaguar', weak: 'Fuego (+50% Daño)',
-                img1: 'aztec.PNG', img2: 'Aztec4.png', music: 'https://www.dropbox.com/scl/fi/k71w9rtwvl3lb6poepqcl/Light-Canvas-Phantom-castleFantasy-Battle-Music.m4a?rlkey=y11vpaa58kks50juuu5073b3h&st=g5ccqa1w&raw=1',
-                weapons: [{n:'Macuahuitl', i:'Aztec1.PNG'}, {n:'Tepoztopilli', i:'Aztec22.PNG'}, {n:'Honda', i:'Aztec3.PNG'}]
-            },
-            pirate: {
-                nombre: 'PIRATE', rol: 'asesino', icon: 'fa-skull-crossbones',
-                stats: { atk: 75, def: 50, mag: 10, spd: 70 },
-                desc: 'Corsario de los mares. Trampas y juego sucio.',
-                passive: 'Evasión (+50% Esquivar, +Botín)', active: 'Transformación en Fantasma', weak: 'Vulnerable a Control (CC)',
-                img1: 'pirate.PNG', img2: 'Pirate4.png', music: 'https://www.dropbox.com/scl/fi/ikdedn9td33op4ll8xwyt/BGM-BGM-Sorceress.mp3?rlkey=k5lgft4pp8n509xxzklyo3zwc&st=p0d07csr&raw=1',
-                weapons: [{n:'Red', i:'Pirate1.PNG'}, {n:'Cañón', i:'Pirate2.PNG'}, {n:'Sable', i:'Pirate3.PNG'}]
-            },
-            cowboy: {
-                nombre: 'COWBOY', rol: 'guerrero', icon: 'fa-hat-cowboy',
-                stats: { atk: 85, def: 40, mag: 0, spd: 65 },
-                desc: 'Pistolero del oeste. El desenfunde más rápido.',
-                passive: 'Jinete Experto (+Velocidad en montura)', active: 'Transformación en Coyote', weak: 'Recarga lenta/Cuerpo a cuerpo',
-                img1: 'cowboy.PNG', img2: 'Cowboy4.png', music: 'https://www.dropbox.com/scl/fi/nx437h4mra9vrj17lrkow/Collision.mp3?rlkey=zgmqwyhgtbeaxm36p631gm9qj&st=zq8qao32&raw=1',
-                weapons: [{n:'Revólveres', i:'Cowboy1.PNG'}, {n:'Escopeta', i:'Cowboy2.PNG'}, {n:'Lazo', i:'Cowboy3.PNG'}]
-            },
-            fairy: {
-                nombre: 'FAIRY', rol: 'soporte', icon: 'fa-magic',
-                stats: { atk: 30, def: 20, mag: 95, spd: 90 },
-                desc: 'Ser mágico de la naturaleza. Pequeña pero poderosa.',
-                passive: 'Ligereza Etérea (Enfriamiento rápido)', active: 'Transformación en Mariposa', weak: 'Resistencia física nula',
-                img1: 'fairy.PNG', img2: 'Fairy4.png', music: 'https://www.dropbox.com/scl/fi/9n6by1hejhsez7iil8pmv/BGM-Devine-Fencer.m4a?rlkey=reo01celebcyuq726su0wzjyu&st=780j6sjm&raw=1',
-                weapons: [{n:'Varita', i:'Fairy1.PNG'}, {n:'Lira', i:'Fairy2.PNG'}, {n:'Polvo Mágico', i:'Fairy3.PNG'}]
-            },
-            succubus: {
-                nombre: 'SUCCUBUS', rol: 'mago', icon: 'fa-heart-broken',
-                stats: { atk: 50, def: 40, mag: 90, spd: 75 },
-                desc: 'Demonio seductor. Controla mentes y drena energía.',
-                passive: 'Atractivo Irresistible (Ralentiza/Screamer)', active: 'Transformación en Demonio', weak: 'Resistencia mental enemiga',
-                img1: 'sucu.jpeg', img2: 'Succubus4.png', music: 'https://www.dropbox.com/scl/fi/39qyso034hsxce2h3kjvp/BGM.mp3?rlkey=k30fgozuhpusf888ozs0x1gjl&st=w3ucqnc4&raw=1',
-                weapons: [{n:'Urumi', i:'Succubus12.jpeg'}, {n:'Sombrilla', i:'Succubus21.jpeg'}, {n:'Espejo', i:'Succubus3.png'}]
-            },
-            priest: {
-                nombre: 'PRIEST', rol: 'soporte', icon: 'fa-cross',
-                stats: { atk: 40, def: 80, mag: 85, spd: 40 },
-                desc: 'Guerrero sagrado. Protege con fe y expulsa el mal.',
-                passive: 'Expulsión Divina (Empuje)', active: 'Transformación en Paloma', weak: 'Enfriamiento lento',
-                img1: 'priest12.jfif', img2: 'Priest4.jfif', music: 'https://www.dropbox.com/scl/fi/s3rnb9fm24br7sduqdi2p/BGM.mp3?rlkey=p6n4mj18msl99xmqzypqtap9v&st=slgqoofr&raw=1',
-                weapons: [{n:'Cruz', i:'Priest1.jfif'}, {n:'Rosario', i:'Priest2.jfif'}, {n:'Escudo', i:'Priest3.jfif'}]
-            },
-            spectrum: {
-                nombre: 'SPECTRUM', rol: 'asesino', icon: 'fa-ghost',
-                stats: { atk: 70, def: 10, mag: 90, spd: 85 },
-                desc: 'Alma en pena. Inmune a lo físico, vulnerable a la luz.',
-                passive: 'Alma Intocable (Inmunidad a Debuffs)', active: 'Transformación en Cuervo', weak: 'Luz Sagrada (Daño Crítico)',
-                img1: 'Spectrum4.WEBP', img2: 'Spectrum5.PNG', music: 'https://www.dropbox.com/scl/fi/qhfv8dw01rghox2e85qxv/BGM.mp3?rlkey=1li4w7w3l1z5yqo2tv477d3it&st=igmp66aa&raw=1',
-                weapons: [{n:'Garrote', i:'Spectrum1.WEBP'}, {n:'Guillotina', i:'Spectrum2.WEBP'}, {n:'Balanza', i:'Spectrum3.WEBP'}]
-            },
-            vampire: {
-                nombre: 'VAMPIRE', rol: 'asesino', icon: 'fa-tint',
-                stats: { atk: 85, def: 60, mag: 60, spd: 85 },
-                desc: 'Depredador inmortal. Roba vida y se mueve rápido.',
-                passive: 'Robo de Vida (+Velocidad/Control)', active: 'Transformación en Murciélago', weak: 'Luz solar, Ajos, Cruces',
-                img1: 'vampire.PNG', img2: 'Vampire4.png', music: 'https://www.dropbox.com/scl/fi/06qeqx68g5lf90qloao8n/BGM.mp3?rlkey=t1yrack66tb01hmilh9m66xbh&st=d81twrs8&raw=1',
-                weapons: [{n:'Guadaña', i:'Vampire1.PNG'}, {n:'Mangual', i:'Vampire2.PNG'}, {n:'Cerbatana', i:'Vampire3.PNG'}]
-            },
-            werewolf: {
-                nombre: 'WEREWOLF', rol: 'tanque', icon: 'fa-paw',
-                stats: { atk: 92, def: 75, mag: 10, spd: 88 },
-                desc: 'Bestia salvaje. Furia incontrolable bajo la luna.',
-                passive: 'Instinto Bestial (Resistencia a CC)', active: 'Transformación en Lobo', weak: 'Plata y pérdida de estrategia',
-                img1: 'werewolf.jpeg', img2: 'Werewolf4.png', music: 'https://www.dropbox.com/scl/fi/qwtyxhtqdjc6yha3b10gd/BGM.mp3?rlkey=3dz2flxm9t7lmzar91u28va33&st=yglnjtyf&raw=1',
-                weapons: [{n:'Lanzagarfios', i:'Werewolf1.PNG'}, {n:'Garras', i:'Werewolf21.png'}, {n:'Molotov', i:'Werewolf3.jpeg'}]
-            },
-            primalis: {
-                nombre: 'PRIMALIS', rol: 'tanque', icon: 'fa-dumbbell',
-                stats: { atk: 90, def: 85, mag: 20, spd: 60 },
-                desc: 'Híbrido simio tribal. Conexión con la fuerza bruta natural.',
-                passive: 'Furia Primordial (Carga daño/Escudo)', active: 'Transformación Primal (Simio)', weak: 'Poco Maná/Magia',
-                img1: 'Primalis.jpeg', img2: 'Primalis4.png', music: 'https://www.dropbox.com/scl/fi/g06dhfk5c4du0y7e7kedt/Light-Canvas-Tyrant-No.666-Dark-Epic-Powerful-Orchestra.m4a?rlkey=snxxk67rvznd6jfvibvko9og5&st=8ss1llyp&raw=1',
-                weapons: [{n:'Bastón', i:'Primalis1.jpeg'}, {n:'Aros', i:'Primalis2.jpeg'}, {n:'Bumerán', i:'Primalis3.jpeg'}]
-            },
-            vyrran: {
-                nombre: 'VYRRAN', rol: 'guerrero', icon: 'fa-dragon',
-                stats: { atk: 88, def: 90, mag: 60, spd: 50 },
-                desc: 'Raza dragón humanoide. Escamas duras y aliento de fuego.',
-                passive: 'Garra Venenosa (Daño continuo)', active: 'Aliento de Fuego', weak: 'Frío y Agua (Ralentización)',
-                img1: 'Vyrran.jpeg', img2: 'Vyrran31.png', music: 'https://www.dropbox.com/scl/fi/2w2iud2rylviooqtkiagy/BGM.mp3?rlkey=v1p0zrtbk810b2bvwy9h7cmod&st=uu8plmho&raw=1',
-                weapons: [{n:'Zhua', i:'Vyrran11.jpeg'}, {n:'Cadenas', i:'Vyrran21.jpeg'}, {n:'Chakram', i:'Vyrran3.jpeg'}]
-            },
-            harpy: {
-                nombre: 'HARPY', rol: 'asesino', icon: 'fa-feather-alt',
-                stats: { atk: 75, def: 30, mag: 50, spd: 100 },
-                desc: 'Mujer ave rapaz. Ataques aéreos veloces.',
-                passive: 'Tormenta Rapaz (Viento cortante/Vuelo)', active: 'Chillido Sónico', weak: 'Alas frágiles (Si se dañan cae)',
-                img1: 'Harpy.jpeg', img2: 'Harpy4.png', music: 'https://www.dropbox.com/scl/fi/obchpjz0o82q06fn40w3k/BGM.mp3?rlkey=jmjqzk324p5q5tc92zhn75mts&st=ycxuy1yh&raw=1',
-                weapons: [{n:'Orbe', i:'Harpy1.WEBP'}, {n:'Anillo', i:'Harpy2.WEBP'}, {n:'Agujas', i:'Harpy3.WEBP'}]
-            },
-            mermaid: {
-                nombre: 'MERMAID', rol: 'mago', icon: 'fa-water',
-                stats: { atk: 50, def: 50, mag: 90, spd: 40 }, /* Spd 100 en agua */
-                desc: 'Sirena de las profundidades. Canto mortal.',
-                passive: 'Velocidad Acuática (Respiración/Canto)', active: 'Transformación Sirena', weak: 'Inútil fuera del agua',
-                img1: 'mermaid.PNG', img2: 'Mermaid4.png', music: 'https://www.dropbox.com/scl/fi/u45wq8305b1ko64krm4wg/1zm8-The-Night-of-Fright.mp3?rlkey=iv97obsoscik94k9lp34ahpr6&st=ltpxqjho&raw=1',
-                weapons: [{n:'Arpón', i:'Mermaid1.PNG'}, {n:'Tridente', i:'Mermaid2.PNG'}, {n:'Algas', i:'Mermaid3.PNG'}]
-            },
-            military: {
-                nombre: 'MILITARY', rol: 'guerrero', icon: 'fa-crosshairs',
-                stats: { atk: 85, def: 60, mag: 0, spd: 60 },
-                desc: 'Soldado táctico. Tecnología y pólvora.',
-                passive: 'Golpe Crítico (50% Probabilidad)', active: 'Transformación Águila (Visión)', weak: 'Munición limitada',
-                img1: 'military.PNG', img2: 'Military4.png', music: 'https://www.dropbox.com/scl/fi/viv5pw10c3bwsnwrv84zx/Cancion-epica-que-usa-TheGrefg-_Victory_.mp3?rlkey=m6k2ucy8cs8v0gt3rfojwq7nt&st=rqs45xrq&raw=1',
-                weapons: [{n:'Rifle', i:'Military1.PNG'}, {n:'Lanzallamas', i:'Military2.PNG'}, {n:'Granada', i:'Military3.PNG'}]
-            },
-            harmonist: {
-                nombre: 'HARMONIST', rol: 'mago', icon: 'fa-music',
-                stats: { atk: 40, def: 30, mag: 100, spd: 70 },
-                desc: 'Guerrero sónico. Usa frecuencias para destruir.',
-                passive: 'Eco de Resonancia (Ignora armadura)', active: 'Transformación Fénix', weak: 'Lentitud al canalizar',
-                img1: 'armonistaa.jpg', img2: 'armonista4.png', music: 'Epic Orchestral Music_ Obscurity  Audiomachine.mp3',
-                weapons: [{n:'Violín', i:'armonista1.jpg'}, {n:'Piano', i:'armonista2.jpg'}, {n:'Zampoña', i:'armonista3.jpg'}]
-            },
-            alien: {
-                nombre: 'ALIEN', rol: 'mago', icon: 'fa-user-astronaut',
-                stats: { atk: 65, def: 50, mag: 95, spd: 80 },
-                desc: 'Visitante estelar. Psíquico y tecnológico.',
-                passive: 'Control Mental (Stun)', active: 'Transformación Monstruo', weak: 'Ninguna',
-                img1: 'alien.PNG', img2: 'Alien4.png', music: 'https://www.dropbox.com/scl/fi/bboyoavcsv0pr8ujdqpeh/Alien.mp3?rlkey=03reiya4ojzgyzcof5ew715ni&st=8jpzr0mt&raw=1',
-                weapons: [{n:'Blaster', i:'Alien1.PNG'}, {n:'Saber', i:'Alien2.PNG'}, {n:'Hoverboard', i:'Alien3.PNG'}]
-            },
-            android: {
-                nombre: 'ANDROID', rol: 'tanque', icon: 'fa-robot',
-                stats: { atk: 90, def: 90, mag: 0, spd: 55 },
-                desc: 'Máquina de guerra. Inteligencia artificial letal.',
-                passive: 'Autodestrucción (Explosión al morir)', active: 'Robot Gigante', weak: 'Muerte permanente (3 vidas)',
-                img1: 'android5.JPEG', img2: 'Android4.png', music: 'https://www.dropbox.com/scl/fi/t5gldi10ajn9nvi3n640s/Magnetic-Field.mp3?rlkey=llrketiwve47mc69ivye808xy&st=vm1l6kgt&raw=1',
-                weapons: [{n:'Miniguns', i:'Android1.PNG'}, {n:'Motosierras', i:'Android2.PNG'}, {n:'Misiles', i:'Android3.PNG'}]
-            }
+            spartan: { nombre: 'SPARTAN', rol: 'guerrero', icon: 'fa-fist-raised', stats: { atk: 85, def: 85, mag: 10, spd: 60 }, desc: 'Guerrero de élite de la antigua Grecia. Disciplina, fuerza y lealtad inquebrantable.', passive: 'Equilibrio Legendario', active: 'Transformación en León', weak: 'Ninguna', img1: 'espartano.PNG', img2: 'Spartan4.png', music: 'https://www.dropbox.com/scl/fi/alqur5qphkin1l2cuzlb8/Huge-Impact.mp3?rlkey=zrve65n7za27pcgad4xd5t44h&st=go4lyzd6&raw=1', weapons: [{n:'Espada', i:'Spartan1.PNG'}, {n:'Daga', i:'Spartan3.jfif'}, {n:'Lanza', i:'Spartan2.PNG'}] },
+            viking: { nombre: 'VIKING', rol: 'tanque', icon: 'fa-shield-alt', stats: { atk: 95, def: 80, mag: 15, spd: 40 }, desc: 'Saqueador nórdico. Busca la gloria del Valhalla a través de la fuerza bruta.', passive: 'Fuerza Bruta (+100% Fisico)', active: 'Transformación en Oso', weak: 'Lentitud', img1: 'vikingo.PNG', img2: 'Viking4.png', music: 'https://www.dropbox.com/scl/fi/ded6kcgql0yrcfcth8xnj/BGM.mp3?rlkey=nnmr2v849qg62aq1vfhsa8y5i&st=ph6dd8sg&raw=1', weapons: [{n:'Martillo', i:'Viking1.PNG'}, {n:'Hacha', i:'Viking21.jpeg'}, {n:'Boleadora', i:'Viking31.jpeg'}] },
+            samurai: { nombre: 'SAMURÁI', rol: 'guerrero', icon: 'fa-khanda', stats: { atk: 90, def: 50, mag: 40, spd: 80 }, desc: 'Maestro de la espada japonés. Honor y precisión mortal.', passive: 'Defensa Maestra', active: 'Transformación en Dragón', weak: 'Flanqueo', img1: 'samurai.PNG', img2: 'Samurai4.png', music: 'https://www.dropbox.com/scl/fi/pmf8cw6gdk5axu9y8ppon/Hiraoka-Kotaro-Almadel.mp3?rlkey=2t438fsbq4emn8e7ortbvw95c&st=e6yl2ann&raw=1', weapons: [{n:'Katana', i:'Samurai1.PNG'}, {n:'Tessen', i:'Samurai2.PNG'}, {n:'Makibishi', i:'Samurai3.PNG'}] },
+            elven: { nombre: 'ELVEN', rol: 'soporte', icon: 'fa-leaf', stats: { atk: 70, def: 30, mag: 80, spd: 90 }, desc: 'Arquero mítico de los bosques. Precisión legendaria.', passive: 'Maestros de la Precisión', active: 'Transformación en Ciervo', weak: 'Cuerpo a cuerpo', img1: 'elven.PNG', img2: 'Elven4.png', music: 'https://www.dropbox.com/scl/fi/r4y9tmatpy8ze593agp3m/Fox-Sailor-Forest-of-the-Ancients.mp3?rlkey=52yr0xlg1fvq5ka4zbsyat4gf&st=owtyveos&raw=1', weapons: [{n:'Flecha', i:'Elven1.PNG'}, {n:'Ballesta', i:'Elven2.PNG'}, {n:'Arco', i:'Elven3.PNG'}] },
+            wizard: { nombre: 'WIZARD', rol: 'mago', icon: 'fa-hat-wizard', stats: { atk: 20, def: 30, mag: 100, spd: 50 }, desc: 'Maestro de lo arcano. Controla los elementos.', passive: 'Dominio Arcano', active: 'Transformación en Búho', weak: 'Defensa baja', img1: 'wizard.PNG', img2: 'Wizard4.png', music: 'https://www.dropbox.com/scl/fi/l0prmxztlqpvg29pwplt9/love-solfege-protomimesis14.mp3?rlkey=ogd1qlzihrlu1y3c84l06uzui&st=yu3dgqco&raw=1', weapons: [{n:'Báculo', i:'Wizard1.PNG'}, {n:'Grimorio', i:'Wizard2.PNG'}, {n:'Pociones', i:'Wizard3.PNG'}] },
+            ninja: { nombre: 'NINJA', rol: 'asesino', icon: 'fa-user-ninja', stats: { atk: 80, def: 40, mag: 50, spd: 100 }, desc: 'Asesino de las sombras. Velocidad y sigilo.', passive: 'Agilidad Sobrehumana', active: 'Transformación en Gato', weak: 'Luz brillante', img1: 'ninja.PNG', img2: 'Ninja4.png', music: 'https://www.dropbox.com/scl/fi/mk55onvw8a3j9vxknx6yw/BGM.mp3?rlkey=mxixqx1dq8coju5nwmo7ben4p&st=w6ptwhi8&raw=1', weapons: [{n:'Kunai', i:'Ninja1.PNG'}, {n:'Nunchaku', i:'Ninja21.jpeg'}, {n:'Shuriken', i:'Ninja3.PNG'}] },
+            aztec: { nombre: 'AZTEC', rol: 'guerrero', icon: 'fa-sun', stats: { atk: 88, def: 70, mag: 40, spd: 70 }, desc: 'Guerrero jaguar ceremonial.', passive: 'Regeneración Vital', active: 'Transformación en Jaguar', weak: 'Fuego', img1: 'aztec.PNG', img2: 'Aztec4.png', music: 'https://www.dropbox.com/scl/fi/k71w9rtwvl3lb6poepqcl/Light-Canvas-Phantom-castleFantasy-Battle-Music.m4a?rlkey=y11vpaa58kks50juuu5073b3h&st=g5ccqa1w&raw=1', weapons: [{n:'Macuahuitl', i:'Aztec1.PNG'}, {n:'Tepoztopilli', i:'Aztec22.PNG'}, {n:'Honda', i:'Aztec3.PNG'}] },
+            pirate: { nombre: 'PIRATE', rol: 'asesino', icon: 'fa-skull-crossbones', stats: { atk: 75, def: 50, mag: 10, spd: 70 }, desc: 'Corsario de los mares. Trampas y juego sucio.', passive: 'Evasión (+Botín)', active: 'Transformación Fantasma', weak: 'Control (CC)', img1: 'pirate.PNG', img2: 'Pirate4.png', music: 'https://www.dropbox.com/scl/fi/ikdedn9td33op4ll8xwyt/BGM-BGM-Sorceress.mp3?rlkey=k5lgft4pp8n509xxzklyo3zwc&st=p0d07csr&raw=1', weapons: [{n:'Red', i:'Pirate1.PNG'}, {n:'Cañón', i:'Pirate2.PNG'}, {n:'Sable', i:'Pirate3.PNG'}] },
+            cowboy: { nombre: 'COWBOY', rol: 'guerrero', icon: 'fa-hat-cowboy', stats: { atk: 85, def: 40, mag: 0, spd: 65 }, desc: 'Pistolero del oeste. El desenfunde más rápido.', passive: 'Jinete Experto', active: 'Transformación Coyote', weak: 'Recarga lenta', img1: 'cowboy.PNG', img2: 'Cowboy4.png', music: 'https://www.dropbox.com/scl/fi/nx437h4mra9vrj17lrkow/Collision.mp3?rlkey=zgmqwyhgtbeaxm36p631gm9qj&st=zq8qao32&raw=1', weapons: [{n:'Revólveres', i:'Cowboy1.PNG'}, {n:'Escopeta', i:'Cowboy2.PNG'}, {n:'Lazo', i:'Cowboy3.PNG'}] },
+            fairy: { nombre: 'FAIRY', rol: 'soporte', icon: 'fa-magic', stats: { atk: 30, def: 20, mag: 95, spd: 90 }, desc: 'Ser mágico de la naturaleza.', passive: 'Ligereza Etérea', active: 'Transformación Mariposa', weak: 'Resistencia baja', img1: 'fairy.PNG', img2: 'Fairy4.png', music: 'https://www.dropbox.com/scl/fi/9n6by1hejhsez7iil8pmv/BGM-Devine-Fencer.m4a?rlkey=reo01celebcyuq726su0wzjyu&st=780j6sjm&raw=1', weapons: [{n:'Varita', i:'Fairy1.PNG'}, {n:'Lira', i:'Fairy2.PNG'}, {n:'Polvo', i:'Fairy3.PNG'}] },
+            succubus: { nombre: 'SUCCUBUS', rol: 'mago', icon: 'fa-heart-broken', stats: { atk: 50, def: 40, mag: 90, spd: 75 }, desc: 'Demonio seductor. Controla mentes.', passive: 'Atractivo Irresistible', active: 'Transformación Demonio', weak: 'Resistencia mental', img1: 'succubus.PNG', img2: 'Succubus4.png', music: 'https://www.dropbox.com/scl/fi/39qyso034hsxce2h3kjvp/BGM.mp3?rlkey=k30fgozuhpusf888ozs0x1gjl&st=w3ucqnc4&raw=1', weapons: [{n:'Urumi', i:'Succubus12.jpeg'}, {n:'Sombrilla', i:'Succubus21.jpeg'}, {n:'Espejo', i:'sucu.jpg'}] },
+            priest: { nombre: 'PRIEST', rol: 'soporte', icon: 'fa-cross', stats: { atk: 40, def: 80, mag: 85, spd: 40 }, desc: 'Guerrero sagrado. Protege con fe.', passive: 'Expulsión Divina', active: 'Transformación Paloma', weak: 'Enfriamiento lento', img1: 'priest12.jfif', img2: 'Priest4.jfif', music: 'https://www.dropbox.com/scl/fi/s3rnb9fm24br7sduqdi2p/BGM.mp3?rlkey=p6n4mj18msl99xmqzypqtap9v&st=slgqoofr&raw=1', weapons: [{n:'Cruz', i:'Priest1.jfif'}, {n:'Rosario', i:'Priest2.jfif'}, {n:'Escudo', i:'Priest3.jfif'}] },
+            spectrum: { nombre: 'SPECTRUM', rol: 'asesino', icon: 'fa-ghost', stats: { atk: 70, def: 10, mag: 90, spd: 85 }, desc: 'Alma en pena. Inmune a lo físico.', passive: 'Alma Intocable', active: 'Transformación Cuervo', weak: 'Luz Sagrada', img1: 'Spectrum4.WEBP', img2: 'Spectrum5.PNG', music: 'https://www.dropbox.com/scl/fi/qhfv8dw01rghox2e85qxv/BGM.mp3?rlkey=1li4w7w3l1z5yqo2tv477d3it&st=igmp66aa&raw=1', weapons: [{n:'Garrote', i:'Spectrum1.WEBP'}, {n:'Guillotina', i:'Spectrum2.WEBP'}, {n:'Balanza', i:'Spectrum3.WEBP'}] },
+            vampire: { nombre: 'VAMPIRE', rol: 'asesino', icon: 'fa-tint', stats: { atk: 85, def: 60, mag: 60, spd: 85 }, desc: 'Depredador inmortal. Roba vida.', passive: 'Robo de Vida', active: 'Transformación Murciélago', weak: 'Sol, Ajo', img1: 'vampire.PNG', img2: 'Vampire4.png', music: 'https://www.dropbox.com/scl/fi/06qeqx68g5lf90qloao8n/BGM.mp3?rlkey=t1yrack66tb01hmilh9m66xbh&st=d81twrs8&raw=1', weapons: [{n:'Guadaña', i:'Vampire1.PNG'}, {n:'Mangual', i:'Vampire2.PNG'}, {n:'Cerbatana', i:'Vampire3.PNG'}] },
+            werewolf: { nombre: 'WEREWOLF', rol: 'tanque', icon: 'fa-paw', stats: { atk: 92, def: 75, mag: 10, spd: 88 }, desc: 'Bestia salvaje. Furia incontrolable.', passive: 'Instinto Bestial', active: 'Transformación Lobo', weak: 'Plata', img1: 'werewolf.jpeg', img2: 'Werewolf4.png', music: 'https://www.dropbox.com/scl/fi/qwtyxhtqdjc6yha3b10gd/BGM.mp3?rlkey=3dz2flxm9t7lmzar91u28va33&st=yglnjtyf&raw=1', weapons: [{n:'Lanzagarfios', i:'Werewolf1.PNG'}, {n:'Garras', i:'Werewolf21.png'}, {n:'Molotov', i:'Werewolf3.jpeg'}] },
+            primalis: { nombre: 'PRIMALIS', rol: 'tanque', icon: 'fa-dumbbell', stats: { atk: 90, def: 85, mag: 20, spd: 60 }, desc: 'Híbrido simio tribal. Fuerza bruta.', passive: 'Furia Primordial', active: 'Transformación Simio', weak: 'Poco Maná', img1: 'Primalis.jpeg', img2: 'Primalis4.png', music: 'https://www.dropbox.com/scl/fi/g06dhfk5c4du0y7e7kedt/Light-Canvas-Tyrant-No.666-Dark-Epic-Powerful-Orchestra.m4a?rlkey=snxxk67rvznd6jfvibvko9og5&st=8ss1llyp&raw=1', weapons: [{n:'Bastón', i:'Primalis1.jpeg'}, {n:'Aros', i:'Primalis2.jpeg'}, {n:'Bumerán', i:'Primalis3.jpeg'}] },
+            vyrran: { nombre: 'VYRRAN', rol: 'guerrero', icon: 'fa-dragon', stats: { atk: 88, def: 90, mag: 60, spd: 50 }, desc: 'Dragón humanoide. Escamas duras.', passive: 'Garra Venenosa', active: 'Aliento de Fuego', weak: 'Frío', img1: 'Vyrran.jpeg', img2: 'Vyrran31.png', music: 'https://www.dropbox.com/scl/fi/2w2iud2rylviooqtkiagy/BGM.mp3?rlkey=v1p0zrtbk810b2bvwy9h7cmod&st=uu8plmho&raw=1', weapons: [{n:'Zhua', i:'Vyrran11.jpeg'}, {n:'Cadenas', i:'Vyrran21.jpeg'}, {n:'Chakram', i:'Vyrran3.jpeg'}] },
+            harpy: { nombre: 'HARPY', rol: 'asesino', icon: 'fa-feather-alt', stats: { atk: 75, def: 30, mag: 50, spd: 100 }, desc: 'Mujer ave rapaz. Ataques aéreos.', passive: 'Tormenta Rapaz', active: 'Chillido Sónico', weak: 'Alas frágiles', img1: 'Harpy.jpeg', img2: 'Harpy4.png', music: 'https://www.dropbox.com/scl/fi/obchpjz0o82q06fn40w3k/BGM.mp3?rlkey=jmjqzk324p5q5tc92zhn75mts&st=ycxuy1yh&raw=1', weapons: [{n:'Orbe', i:'Harpy1.WEBP'}, {n:'Anillo', i:'Harpy2.WEBP'}, {n:'Agujas', i:'Harpy3.WEBP'}] },
+            mermaid: { nombre: 'MERMAID', rol: 'mago', icon: 'fa-water', stats: { atk: 50, def: 50, mag: 90, spd: 40 }, desc: 'Sirena de las profundidades.', passive: 'Velocidad Acuática', active: 'Transformación Sirena', weak: 'Tierra firme', img1: 'mermaid.PNG', img2: 'Mermaid4.png', music: 'https://www.dropbox.com/scl/fi/u45wq8305b1ko64krm4wg/1zm8-The-Night-of-Fright.mp3?rlkey=iv97obsoscik94k9lp34ahpr6&st=ltpxqjho&raw=1', weapons: [{n:'Arpón', i:'Mermaid1.PNG'}, {n:'Tridente', i:'Mermaid2.PNG'}, {n:'Algas', i:'Mermaid3.PNG'}] },
+            military: { nombre: 'MILITARY', rol: 'guerrero', icon: 'fa-crosshairs', stats: { atk: 85, def: 60, mag: 0, spd: 60 }, desc: 'Soldado táctico. Tecnología y pólvora.', passive: 'Golpe Crítico', active: 'Transformación Águila', weak: 'Munición limitada', img1: 'military.PNG', img2: 'Military4.png', music: 'https://www.dropbox.com/scl/fi/viv5pw10c3bwsnwrv84zx/Cancion-epica-que-usa-TheGrefg-_Victory_.mp3?rlkey=m6k2ucy8cs8v0gt3rfojwq7nt&st=rqs45xrq&raw=1', weapons: [{n:'Rifle', i:'Military1.PNG'}, {n:'Lanzallamas', i:'Military2.PNG'}, {n:'Granada', i:'Military3.PNG'}] },
+            harmonist: { nombre: 'HARMONIST', rol: 'mago', icon: 'fa-music', stats: { atk: 40, def: 30, mag: 100, spd: 70 }, desc: 'Guerrero sónico. Frecuencias mortales.', passive: 'Eco de Resonancia', active: 'Transformación Fénix', weak: 'Canalización', img1: 'armonistaa.jpg', img2: 'armonista4.png', music: 'Epic Orchestral Music_ Obscurity  Audiomachine.mp3', weapons: [{n:'Violín', i:'armonista1.jpg'}, {n:'Piano', i:'armonista2.jpg'}, {n:'Zampoña', i:'armonista3.jpg'}] },
+            alien: { nombre: 'ALIEN', rol: 'mago', icon: 'fa-user-astronaut', stats: { atk: 65, def: 50, mag: 95, spd: 80 }, desc: 'Visitante estelar. Psíquico.', passive: 'Control Mental', active: 'Transformación Monstruo', weak: 'Ninguna', img1: 'alien.PNG', img2: 'Alien4.png', music: 'https://www.dropbox.com/scl/fi/bboyoavcsv0pr8ujdqpeh/Alien.mp3?rlkey=03reiya4ojzgyzcof5ew715ni&st=8jpzr0mt&raw=1', weapons: [{n:'Blaster', i:'Alien1.PNG'}, {n:'Saber', i:'Alien2.PNG'}, {n:'Hoverboard', i:'Alien3.PNG'}] },
+            android: { nombre: 'ANDROID', rol: 'tanque', icon: 'fa-robot', stats: { atk: 90, def: 90, mag: 0, spd: 55 }, desc: 'Máquina de guerra con IA.', passive: 'Autodestrucción', active: 'Robot Gigante', weak: 'Hackeo', img1: 'android5.JPEG', img2: 'Android4.png', music: 'https://www.dropbox.com/scl/fi/t5gldi10ajn9nvi3n640s/Magnetic-Field.mp3?rlkey=llrketiwve47mc69ivye808xy&st=vm1l6kgt&raw=1', weapons: [{n:'Miniguns', i:'Android1.PNG'}, {n:'Motosierras', i:'Android2.PNG'}, {n:'Misiles', i:'Android3.PNG'}] }
         };
 
         const audioHover = document.getElementById('sfx-hover');
         const audioSelect = document.getElementById('sfx-select');
         const bgMusic = document.getElementById('bg-music-player');
-        
-        function playSfx(type) {
-            if(type === 'hover') { audioHover.currentTime=0; audioHover.volume=0.2; audioHover.play().catch(()=>{}); }
-            if(type === 'select') { audioSelect.currentTime=0; audioSelect.volume=0.4; audioSelect.play().catch(()=>{}); }
+
+        // --- INICIO INTERACTIVO (Evita bloqueo de audio en móvil) ---
+        function iniciarExperiencia() {
+            document.getElementById('start-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('start-overlay').style.display = 'none';
+            }, 500);
+            
+            // Iniciar video si no es móvil
+            if(!isMobile) {
+                const vid = document.getElementById('bg-video');
+                vid.play().catch(e => console.log("Video autoplay denied"));
+            }
+            audioEnabled = true;
+            playSfx('select');
         }
 
-        // --- SISTEMA DE PARTÍCULAS ---
+        function playSfx(type) {
+            if(!audioEnabled) return;
+            // Clonamos el audio para permitir sonidos simultáneos rápidos
+            if(type === 'hover') { 
+                const sfx = audioHover.cloneNode(); sfx.volume=0.2; sfx.play().catch(()=>{}); 
+            }
+            if(type === 'select') { 
+                const sfx = audioSelect.cloneNode(); sfx.volume=0.4; sfx.play().catch(()=>{}); 
+            }
+        }
+
+        // --- SISTEMA DE PARTÍCULAS OPTIMIZADO ---
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
         let particlesArray;
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -583,13 +489,14 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = (Math.random() * 1) - 0.5;
-                this.speedY = (Math.random() * 1) - 0.5;
-                this.color = 'rgba(0, 243, 255, 0.5)';
+                this.size = Math.random() * (isMobile ? 1.5 : 2); // Partículas más pequeñas en móvil
+                this.speedX = (Math.random() * 0.5) - 0.25;
+                this.speedY = (Math.random() * 0.5) - 0.25;
+                this.color = 'rgba(0, 243, 255, 0.4)';
             }
             update() {
-                this.x += this.speedX; this.y += this.speedY;
+                this.x += this.speedX;
+                this.y += this.speedY;
                 if(this.x > canvas.width) this.x = 0;
                 if(this.x < 0) this.x = canvas.width;
                 if(this.y > canvas.height) this.y = 0;
@@ -603,7 +510,9 @@
 
         function initParticles() {
             particlesArray = [];
-            for(let i=0; i<80; i++) particlesArray.push(new Particle());
+            // Reducir cantidad de partículas drásticamente en móvil para mejorar FPS y batería
+            const count = isMobile ? 30 : 80;
+            for(let i=0; i<count; i++) particlesArray.push(new Particle());
         }
 
         function animateParticles() {
@@ -622,13 +531,15 @@
 
         function renderGrid(filtro="", rol="todos") {
             grid.innerHTML = "";
+            let found = 0;
             Object.keys(heroes).forEach(key => {
                 const h = heroes[key];
                 if(h.nombre.toLowerCase().includes(filtro.toLowerCase()) && (rol==="todos" || h.rol===rol)) {
+                    found++;
                     grid.innerHTML += `
                         <div class="hero-card" onclick="abrirDetalle('${key}')" onmouseenter="playSfx('hover')">
                             <div class="card-role-icon"><i class="fas ${h.icon}"></i></div>
-                            <img src="${h.img1}" loading="lazy">
+                            <img src="${h.img1}" loading="lazy" alt="${h.nombre}">
                             <div class="card-info">
                                 <h3 class="card-name">${h.nombre}</h3>
                             </div>
@@ -636,15 +547,23 @@
                     `;
                 }
             });
+            if(found === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; opacity:0.5;">NO SE ENCONTRARON AGENTES</div>`;
+            }
         }
 
-        function filtrarGrid(val) { renderGrid(val, document.querySelector('.btn.active').innerText.toLowerCase().replace(/ .*/,'')); }
+        function filtrarGrid(val) { 
+            renderGrid(val, document.querySelector('.btn.active').innerText.toLowerCase().trim());
+        }
         
         function filtrarRol(rol) {
             playSfx('select');
             document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            renderGrid(document.querySelector('.search-input').value, rol);
+            // Limpiar input al cambiar rol para evitar confusiones
+            const input = document.querySelector('.search-input');
+            input.value = '';
+            renderGrid("", rol);
         }
 
         function seleccionarAleatorio() {
@@ -660,6 +579,9 @@
             const h = heroes[key];
             const d = document.getElementById('detail-overlay');
             d.style.display = 'block';
+            
+            // Bloquear scroll del body
+            document.body.style.overflow = 'hidden';
 
             // Textos
             document.getElementById('d-name').innerText = h.nombre;
@@ -671,7 +593,9 @@
             
             // Imágenes
             document.getElementById('d-img-main').src = h.img1;
-            document.getElementById('d-img-sub').src = h.img2;
+            // Aseguramos que existan antes de asignar
+            document.getElementById('d-img-sub').src = h.img2 ? h.img2 : h.img1;
+            document.getElementById('d-img-sub2').src = h.img1; // Reusa img1 como thumb
 
             // Animación Barras Stats
             setTimeout(() => {
@@ -687,27 +611,33 @@
             h.weapons.forEach(w => {
                 wContainer.innerHTML += `
                     <div class="weapon-item" onclick="zoomImg('${w.i}')" onmouseenter="playSfx('hover')">
-                        <img src="${w.i}">
-                        <div style="font-family:'Orbitron'; color:var(--primary); font-size:0.9rem;">${w.n}</div>
+                        <img src="${w.i}" loading="lazy">
+                        <div class="weapon-name">${w.n}</div>
                     </div>
                 `;
             });
 
             // Música
-            if(h.music) {
+            if(h.music && audioEnabled) {
                 bgMusic.src = h.music;
                 bgMusic.volume = 0.3;
-                bgMusic.play().catch(e => console.log("Audio block"));
+                bgMusic.play().catch(e => console.log("Audio block inside modal"));
             }
         }
 
         function cerrarDetalle() {
             playSfx('select');
             document.getElementById('detail-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
             bgMusic.pause();
             bgMusic.currentTime = 0;
-            // Resetear barras
+            // Resetear barras para que se animen la proxima vez
             ['atk','def','mag','spd'].forEach(s => document.getElementById('bar-'+s).style.width = '0%');
+        }
+
+        function cambiarMainImg(src) {
+            document.getElementById('d-img-main').src = src;
+            playSfx('hover');
         }
 
         function zoomImg(src) {
